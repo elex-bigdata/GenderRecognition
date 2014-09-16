@@ -33,14 +33,15 @@ public class UserInfoUtils {
 		String line = in.readLine().trim();
 		HTableInterface ud = HbaseBasis.getConn().getTable(Bytes.toBytes("337user_info"));
 		int i = 0;
+		int j = 0;
 		List<Put> list = new ArrayList<Put>();
 		while (line != null){
 						
 			String[] values = line.split(",");
 			
-			if(values.length == 20){
+			if(values.length >= 17){
 				i++;
-				
+				j++;
 				Put put = new Put(Bytes.toBytes(values[2]));				
 				put.add(Bytes.toBytes("user"), Bytes.toBytes("name"), Bytes.toBytes(values[1]));
 				put.add(Bytes.toBytes("user"), Bytes.toBytes("mail"), Bytes.toBytes(values[4]));
@@ -49,15 +50,15 @@ public class UserInfoUtils {
 				put.add(Bytes.toBytes("user"), Bytes.toBytes("lang"), Bytes.toBytes(values[8]));
 				put.add(Bytes.toBytes("user"), Bytes.toBytes("reg"), Bytes.toBytes(values[9]));
 				put.add(Bytes.toBytes("user"), Bytes.toBytes("birth"), Bytes.toBytes(values[13]));
-				put.add(Bytes.toBytes("user"), Bytes.toBytes("sns"), Bytes.toBytes(values[19]));
-				
+				if(values.length == 20){
+					put.add(Bytes.toBytes("user"), Bytes.toBytes("sns"), Bytes.toBytes(values[19]));
+				}								
 				list.add(put);
 				
 				if(i == 1000){
 					i = 0;
 					ud.put(list);
-					list.clear();
-					System.out.println("Has load "+list.size() +" user");
+					list.clear();					
 				}
 								
 			}
@@ -66,9 +67,9 @@ public class UserInfoUtils {
 			
 		}
 		ud.put(list);
-		System.out.println("Has load "+list.size() +" user");
 		ud.close();
 		in.close();
+		System.out.println("["+userInfoFile+"] 导入完成，共导入用户:"+j);
 	}
 	
 	public static void loadFacebookUser(String facebookUserFile) throws IOException{
@@ -76,10 +77,12 @@ public class UserInfoUtils {
 		String line = in.readLine().trim();
 		HTableInterface ud = HbaseBasis.getConn().getTable(Bytes.toBytes("337user_info"));
 		int i = 0;
+		int j = 0;
 		List<Put> list = new ArrayList<Put>();
 		while (line != null){
 						
 			i++;
+			j++;
 			String id = line.substring(0, line.indexOf(" "));
 			String json = line.substring(line.indexOf("{", 1), line.length());
 			Put put = new Put(Bytes.toBytes(id));				
@@ -89,12 +92,15 @@ public class UserInfoUtils {
 			JSONObject jsonObj;
 			try {
 				jsonObj = new JSONObject(json);
-				String gender = jsonObj.get("gender").toString();
-				if(gender != null){
-					put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(gender));	
-				}					
+				if(jsonObj.has("gender")){
+					Object gender = jsonObj.get("gender");
+					if(gender != null){
+						put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(gender.toString()));	
+					}
+				}
+									
 			} catch (JSONException e) {
-				e.printStackTrace();
+				System.out.println("get gender from json string error!!!");
 			}
 						
 				
@@ -104,16 +110,15 @@ public class UserInfoUtils {
 				i = 0;
 				ud.put(list);
 				list.clear();
-				System.out.println("Has load "+list.size() +" user");
 			}
 			
 			line = in.readLine();
 			
 		}
 		ud.put(list);
-		System.out.println("Has load "+list.size() +" user");
 		ud.close();
 		in.close();
+		System.out.println("["+facebookUserFile+"] 导入完成，共导入:"+j);
 	}
 	
 	public static void loadGenderInfo(String genderInfoFile) throws IOException{
@@ -121,6 +126,7 @@ public class UserInfoUtils {
 		String line = in.readLine().trim();
 		HTableInterface ud = HbaseBasis.getConn().getTable(Bytes.toBytes("337user_info"));
 		int i = 0;
+		int j = 0;
 		List<Put> list = new ArrayList<Put>();
 		while (line != null){
 						
@@ -128,7 +134,7 @@ public class UserInfoUtils {
 			
 			if(values.length == 3){
 				i++;
-				
+				j++;
 				Put put = new Put(Bytes.toBytes(values[0]));				
 				put.add(Bytes.toBytes("user"), Bytes.toBytes("name"), Bytes.toBytes(values[1]));
 				put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(values[2]));
@@ -138,7 +144,6 @@ public class UserInfoUtils {
 				if(i == 1000){
 					i = 0;
 					ud.put(list);
-					System.out.println("Has load "+list.size() +" user");
 					list.clear();
 				}
 								
@@ -148,9 +153,9 @@ public class UserInfoUtils {
 			
 		}
 		ud.put(list);
-		System.out.println("Has load "+list.size() +" user");
 		ud.close();
 		in.close();
+		System.out.println("["+genderInfoFile+"] 导入完成，共导入:"+j);
 	}
 	
 
