@@ -25,7 +25,7 @@ public class UserInfoUtils {
 	public static void main(String[] args) throws IOException, JSONException {
 		loadUserInfoTable(args[0]);
 		loadFacebookUser(args[1]);
-		loadGenderInfo(args[3]);
+		loadGenderInfo(args[2]);
 	}
 	
 	public static void loadUserInfoTable(String userInfoFile) throws IOException{
@@ -39,7 +39,7 @@ public class UserInfoUtils {
 						
 			String[] values = line.split(",");
 			
-			if(values.length >= 17){
+			if(values.length >= 13){
 				i++;
 				j++;
 				Put put = new Put(Bytes.toBytes(values[2]));				
