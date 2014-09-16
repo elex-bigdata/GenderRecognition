@@ -7,7 +7,7 @@ import com.elex.userAnalyze.genderRecognition.common.Constants;
 import com.elex.userAnalyze.genderRecognition.common.HiveOperator;
 import com.elex.userAnalyze.genderRecognition.common.PropertiesUtils;
 
-public class CidUidUtils {
+public class HiveAnalyzeUtils {
 
 	/**
 	 * @param args
@@ -22,11 +22,8 @@ public class CidUidUtils {
 		
 		String hql = "load data inpath  '"+PropertiesUtils.getRootDir()+Constants.CUID+"/part*' OVERWRITE INTO TABLE 337_cid_uid";
 		int b = HiveOperator.executeHQL(hql)?0:1;
-		
-		String genderSql = "INSERT OVERWRITE table 337_user_gender select uid,gender,source from 337_user_info where gender is not null";
-		int c = HiveOperator.executeHQL(genderSql)?0:1;
-		
-		return Math.max(a, Math.max(b, c));
-	}
+				
+		return Math.max(a, b);
+	}		
 	
 }

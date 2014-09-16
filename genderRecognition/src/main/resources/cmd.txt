@@ -7,6 +7,7 @@ java -classpath .:genderRecognition-1.0.jar com.elex.userAnalyze.genderRecogniti
 
 hadoop jar genderRecognition-1.0.jar com.elex.userAnalyze.genderRecognition.prepareWork.CidUidMappingFileGenerator
 
+
 #dmnode2上解析的cid到uid的映射文件，$1为cid，$2为uid
 awk '{print $2}' lk.* | sort | uniq -c >> abc
 
@@ -20,4 +21,4 @@ CREATE EXTERNAL TABLE 337_user_info(uid string,gender string,source string)  STO
 
 create table 337_user_gender(uid string,gender string,source string)row format delimited fields terminated by ',' stored as textfile;
 
-INSERT OVERWRITE table 337_user_gender select uid,gender,source from 337user_info where gender is not null;
+INSERT OVERWRITE table 337_user_gender select uid,gender,source from 337_user_info where gender is not null;

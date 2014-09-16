@@ -3,6 +3,7 @@ package com.elex.userAnalyze.genderRecognition.prepareWork;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.elex.userAnalyze.genderRecognition.common.HbaseBasis;
+import com.elex.userAnalyze.genderRecognition.common.HiveOperator;
 
 
 public class UserInfoUtils {
@@ -21,11 +23,13 @@ public class UserInfoUtils {
 	 * @param args
 	 * @throws IOException 
 	 * @throws JSONException 
+	 * @throws SQLException 
 	 */
-	public static void main(String[] args) throws IOException, JSONException {
+	public static void main(String[] args) throws IOException, JSONException, SQLException {
 		loadUserInfoTable(args[0]);
 		loadFacebookUser(args[1]);
 		loadGenderInfo(args[2]);
+		//createGenderInfo();
 	}
 	
 	public static void loadUserInfoTable(String userInfoFile) throws IOException{
@@ -53,7 +57,12 @@ public class UserInfoUtils {
 				}
 				
 				if(!values[5].equals("")){
-					put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(values[5]));
+					if(values[5].equals("1")){
+						put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes("male"));
+					}else if(values[5].equals("2")){
+						put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes("female"));
+					}
+					
 				}
 				
 				if(!values[7].equals("")){
@@ -183,5 +192,9 @@ public class UserInfoUtils {
 		System.out.println("["+genderInfoFile+"] 导入完成，共导入:"+j);
 	}
 	
+	public static int createGenderInfo() throws SQLException{
+		String genderSql = "INSERT OVERWRITE table 337_user_gender select uid,gender,source from 337_user_info where gender is not null";
+		return HiveOperator.executeHQL(genderSql)?0:1;		
+	}
 
 }
