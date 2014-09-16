@@ -42,16 +42,41 @@ public class UserInfoUtils {
 			if(values.length >= 13){
 				i++;
 				j++;
-				Put put = new Put(Bytes.toBytes(values[2]));				
-				put.add(Bytes.toBytes("user"), Bytes.toBytes("name"), Bytes.toBytes(values[1]));
-				put.add(Bytes.toBytes("user"), Bytes.toBytes("mail"), Bytes.toBytes(values[4]));
-				put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(values[5]));
-				put.add(Bytes.toBytes("user"), Bytes.toBytes("country"), Bytes.toBytes(values[7]));
-				put.add(Bytes.toBytes("user"), Bytes.toBytes("lang"), Bytes.toBytes(values[8]));
-				put.add(Bytes.toBytes("user"), Bytes.toBytes("reg"), Bytes.toBytes(values[9]));
-				put.add(Bytes.toBytes("user"), Bytes.toBytes("birth"), Bytes.toBytes(values[13]));
+				
+				Put put = new Put(Bytes.toBytes(values[2]));
+				if(!values[1].equals("")){
+					put.add(Bytes.toBytes("user"), Bytes.toBytes("name"), Bytes.toBytes(values[1]));
+				}
+				
+				if(!values[4].equals("")){
+					put.add(Bytes.toBytes("user"), Bytes.toBytes("mail"), Bytes.toBytes(values[4]));
+				}
+				
+				if(!values[5].equals("")){
+					put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(values[5]));
+				}
+				
+				if(!values[7].equals("")){
+					put.add(Bytes.toBytes("user"), Bytes.toBytes("country"), Bytes.toBytes(values[7]));
+				}
+				
+				if(!values[8].equals("")){
+					put.add(Bytes.toBytes("user"), Bytes.toBytes("lang"), Bytes.toBytes(values[8]));
+				}
+				
+				if(!values[9].equals("")){
+					put.add(Bytes.toBytes("user"), Bytes.toBytes("reg"), Bytes.toBytes(values[9]));
+				}
+				
+				if(!values[13].equals("")){
+					put.add(Bytes.toBytes("user"), Bytes.toBytes("birth"), Bytes.toBytes(values[13]));
+				}
+				
 				if(values.length == 20){
-					put.add(Bytes.toBytes("user"), Bytes.toBytes("sns"), Bytes.toBytes(values[19]));
+					if(!values[19].equals("")){
+						put.add(Bytes.toBytes("user"), Bytes.toBytes("sns"), Bytes.toBytes(values[19]));
+					}
+					
 				}								
 				list.add(put);
 				

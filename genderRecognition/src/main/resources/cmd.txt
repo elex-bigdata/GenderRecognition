@@ -4,3 +4,20 @@ truncate '337user_info'
 https://github.com/elex-bigdata/GenderRecognition.git
 
 java -classpath .:genderRecognition-1.0.jar com.elex.userAnalyze.genderRecognition.prepareWork.UserInfoUtils /home/hadoop/wuzhongju/user.csv /home/hadoop/wuzhongju/facebook_users /home/hadoop/wuzhongju/all.csv
+
+hadoop jar genderRecognition-1.0.jar com.elex.userAnalyze.genderRecognition.prepareWork.CidUidMappingFileGenerator
+
+#dmnode2上解析的cid到uid的映射文件，$1为cid，$2为uid
+awk '{print $2}' lk.* | sort | uniq -c >> abc
+
+create table 337_cid_uid(cid string,uid string)row format delimited fields terminated by '\t' stored as textfile;
+
+load data inpath  '/337user_analyze/cuid/part*' OVERWRITE INTO TABLE 337_cid_uid;
+
+hive -hiveconf hbase.zookeeper.quorum=dmnode3,dmnode4,dmnode5
+
+CREATE EXTERNAL TABLE 337_user_info(uid string,gender string,source string)  STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ("hbase.columns.mapping" = ":key,user:gender,user:source")  TBLPROPERTIES ("hbase.table.name" = "337user_info");
+
+create table 337_user_gender(uid string,gender string,source string)row format delimited fields terminated by ',' stored as textfile;
+
+INSERT OVERWRITE table 337_user_gender select uid,gender,source from 337user_info where gender is not null;

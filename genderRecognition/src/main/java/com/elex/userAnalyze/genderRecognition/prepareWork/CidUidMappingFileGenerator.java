@@ -18,7 +18,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -44,13 +43,13 @@ public class CidUidMappingFileGenerator extends Configured implements Tool {
 		job.setJarByClass(CidUidMappingFileGenerator.class);
  
 	    List<Scan> scans = new ArrayList<Scan>(); 
-	    Scan hbScan = new Scan();
-		hbScan.setStartRow(Bytes.toBytes("lk"));
-		hbScan.setStopRow(Bytes.toBytes("ll"));
-		hbScan.setCaching(500);
-		hbScan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes("gm_user_action"));
-		hbScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("lid"));
-		scans.add(hbScan);
+	    Scan lkScan = new Scan();
+	    lkScan.setStartRow(Bytes.toBytes("lk"));
+	    lkScan.setStopRow(Bytes.toBytes("ll"));
+	    lkScan.setCaching(500);
+	    lkScan.setAttribute(Scan.SCAN_ATTRIBUTES_TABLE_NAME, Bytes.toBytes("gm_user_action"));
+	    lkScan.addColumn(Bytes.toBytes("ua"), Bytes.toBytes("lid"));
+		scans.add(lkScan);
 		
 		TableMapReduceUtil.initTableMapperJob(scans, MyMapper.class,Text.class, Text.class, job);
 		job.setMapOutputKeyClass(Text.class);
