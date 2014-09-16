@@ -1,0 +1,1 @@
+create '337user_info',{NAME =>'user',COMPRESSION => 'LZO'}
