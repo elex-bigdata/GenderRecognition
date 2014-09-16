@@ -57,6 +57,7 @@ public class UserInfoUtils {
 					i = 0;
 					ud.put(list);
 					list.clear();
+					System.out.println("Has load "+list.size() +" user");
 				}
 								
 			}
@@ -65,11 +66,12 @@ public class UserInfoUtils {
 			
 		}
 		ud.put(list);
+		System.out.println("Has load "+list.size() +" user");
 		ud.close();
 		in.close();
 	}
 	
-	public static void loadFacebookUser(String facebookUserFile) throws IOException, JSONException{
+	public static void loadFacebookUser(String facebookUserFile) throws IOException{
 		BufferedReader in = new BufferedReader(new FileReader(facebookUserFile));
 		String line = in.readLine().trim();
 		HTableInterface ud = HbaseBasis.getConn().getTable(Bytes.toBytes("337user_info"));
@@ -80,25 +82,36 @@ public class UserInfoUtils {
 			i++;
 			String id = line.substring(0, line.indexOf(" "));
 			String json = line.substring(line.indexOf("{", 1), line.length());
-			JSONObject jsonObj = new JSONObject(json);
-			String gender = jsonObj.get("gender").toString();
-			
 			Put put = new Put(Bytes.toBytes(id));				
 			put.add(Bytes.toBytes("user"), Bytes.toBytes("source"), Bytes.toBytes("facebook"));
 			put.add(Bytes.toBytes("user"), Bytes.toBytes("s_detail"), Bytes.toBytes(json));
-			put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(gender));			
+			
+			JSONObject jsonObj;
+			try {
+				jsonObj = new JSONObject(json);
+				String gender = jsonObj.get("gender").toString();
+				if(gender != null){
+					put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(gender));	
+				}					
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+						
+				
 			list.add(put);
 			
 			if(i == 1000){
 				i = 0;
 				ud.put(list);
 				list.clear();
+				System.out.println("Has load "+list.size() +" user");
 			}
 			
 			line = in.readLine();
 			
 		}
 		ud.put(list);
+		System.out.println("Has load "+list.size() +" user");
 		ud.close();
 		in.close();
 	}
@@ -125,6 +138,7 @@ public class UserInfoUtils {
 				if(i == 1000){
 					i = 0;
 					ud.put(list);
+					System.out.println("Has load "+list.size() +" user");
 					list.clear();
 				}
 								
@@ -134,6 +148,7 @@ public class UserInfoUtils {
 			
 		}
 		ud.put(list);
+		System.out.println("Has load "+list.size() +" user");
 		ud.close();
 		in.close();
 	}

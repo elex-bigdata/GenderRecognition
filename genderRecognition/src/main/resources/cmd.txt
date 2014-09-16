@@ -1,1 +1,6 @@
 create '337user_info',{NAME =>'user',COMPRESSION => 'LZO'}
+truncate '337user_info'
+
+https://github.com/elex-bigdata/GenderRecognition.git
+
+java -classpath .:genderRecognition-1.0.jar com.elex.userAnalyze.genderRecognition.prepareWork.UserInfoUtils /home/hadoop/wuzhongju/user.csv /home/hadoop/wuzhongju/facebook_users /home/hadoop/wuzhongju/all.csv
