@@ -11,6 +11,8 @@ hadoop jar genderRecognition-1.0.jar com.elex.userAnalyze.genderRecognition.prep
 #dmnode2上解析的cid到uid的映射文件，$1为cid，$2为uid
 awk '{print $2}' lk.* | sort | uniq -c >> abc
 
+awk '{print $1}' facebook_users | sort | uniq -c | wc -l ===10655
+
 create table 337_cid_uid(cid string,uid string)row format delimited fields terminated by '\t' stored as textfile;
 
 load data inpath  '/337user_analyze/cuid/part*' OVERWRITE INTO TABLE 337_cid_uid;
@@ -21,4 +23,19 @@ CREATE EXTERNAL TABLE 337_user_info(uid string,gender string,source string)  STO
 
 create table 337_user_gender(uid string,gender string,source string)row format delimited fields terminated by ',' stored as textfile;
 
-INSERT OVERWRITE table 337_user_gender select uid,gender,source from 337_user_info where gender is not null;
+hive -e "INSERT OVERWRITE table 337_user_gender select uid,gender,source from 337_user_info where gender is nonull" -hiveconf hbase.zookeeper.quorum=dmnode3,dmnode4,dmnode5
+
+#葡语下“女孩游戏”的tag
+SELECT id FROM www_tag WHERE tagname='Jogos de Meninas' === 1051
+
+#用户玩1051tag的男/女性用户数量
+select count(distinct uid) from webgmrec_input where tgid ='1051'; === 422171
+select count(1) from 337_cid_uid a join (select distinct uid from webgmrec_input where tgid ='1051')b on a.cid=b.uid; === 10391
+select count(1) from 337_user_gender t join (select a.uid from 337_cid_uid a join (select distinct uid from webgmrec_input where tgid ='1051')b on a.cid=b.uid)c on t.uid =c.uid where t.source='facebook' and t.gender='male/female';
+facebook(male/female)=== 142/55 = 2.6
+all(male/female) === 547/242 = 2.26
+!facebook(male/female) === 405/187 =2.16
+
+
+#提取训练集测试数据集
+hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/hadoop/wuzhongju/ana' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' select t.gender,c.* from 337_user_gender t join (select a.uid,b.tgid,b.gt,b.hb_sum from 337_cid_uid a join webgmrec_input b on a.cid=b.uid where b.gt='w')c on t.uid =c.uid where t.source='facebook'"

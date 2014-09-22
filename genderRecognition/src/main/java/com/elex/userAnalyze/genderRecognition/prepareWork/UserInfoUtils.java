@@ -3,7 +3,9 @@ package com.elex.userAnalyze.genderRecognition.prepareWork;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,10 +28,7 @@ public class UserInfoUtils {
 	 * @throws SQLException 
 	 */
 	public static void main(String[] args) throws IOException, JSONException, SQLException {
-		loadUserInfoTable(args[0]);
-		loadFacebookUser(args[1]);
-		loadGenderInfo(args[2]);
-		//createGenderInfo();
+		loadGenderInfo(args[0]);
 	}
 	
 	public static void loadUserInfoTable(String userInfoFile) throws IOException{
@@ -193,8 +192,14 @@ public class UserInfoUtils {
 	}
 	
 	public static int createGenderInfo() throws SQLException{
+		String confSql = " set  hbase.zookeeper.quorum=dmnode3,dmnode4,dmnode5";		
 		String genderSql = "INSERT OVERWRITE table 337_user_gender select uid,gender,source from 337_user_info where gender is not null";
-		return HiveOperator.executeHQL(genderSql)?0:1;		
+		Connection con = HiveOperator.getHiveConnection();
+		Statement stmt = con.createStatement();
+		stmt.execute(confSql);
+		stmt.execute(genderSql);
+		stmt.close();
+		return 0;		
 	}
 
 }

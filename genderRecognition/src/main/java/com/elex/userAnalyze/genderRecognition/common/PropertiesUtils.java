@@ -58,4 +58,19 @@ public class PropertiesUtils {
 	public static String getCfSimilarityClassname(){
 		return pop.getProperty("cf.SimilarityClassname");
 	}
+
+	public static String getDataSetFile() {
+		
+		return pop.getProperty("dataset");
+	}
+
+	public static String getGidFile() {
+
+		return pop.getProperty("gidfile");
+	}
+
+	public static String getUidFile() {
+
+		return pop.getProperty("uidfile");
+	}
 }
