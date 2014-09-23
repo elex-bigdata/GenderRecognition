@@ -26,7 +26,7 @@ import com.elex.userAnalyze.genderRecognition.prepareWork.UserInfoUtils;
 
 public class ModelUtils {
 
-	 public final static String MODEL = "D:\\cls.model";
+	 public final static String MODEL = "/home/hadoop/wuzhongju/cls.model";
 	 
 	/**
 	 * @param args
