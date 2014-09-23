@@ -97,4 +97,8 @@ public class PropertiesUtils {
 	public static String getPredictResultFile() {
 		return pop.getProperty("predict.result.file");
 	}
+
+	public static String getModelFile() {
+		return pop.getProperty("model");
+	}
 }
