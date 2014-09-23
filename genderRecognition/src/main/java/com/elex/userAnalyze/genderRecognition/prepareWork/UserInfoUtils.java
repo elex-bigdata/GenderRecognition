@@ -217,7 +217,7 @@ public class UserInfoUtils {
 				i++;
 				j++;
 				Put put = new Put(Bytes.toBytes(values[0]));				
-				put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(values[2]));
+				put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(values[1]));
 
 				list.add(put);
 				
