@@ -1,4 +1,4 @@
-package com.elex.userAnalyze.genderRecognition.prepareWork;
+package com.elex.userAnalyze.genderRecognition;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import org.apache.hadoop.io.IntWritable;
@@ -24,7 +25,7 @@ import org.apache.mahout.math.VectorWritable;
 
 import com.elex.userAnalyze.genderRecognition.common.PropertiesUtils;
 
-public class AttributeSelection {
+public class AttributeExtraction {
 	
 	private static Map<String,Double> attributeMap;
 	private static Set<String> gidSet;
@@ -36,6 +37,7 @@ public class AttributeSelection {
 	private static Map<String,String> uidGenderMap;
 	private static final String uidMappingFile = PropertiesUtils.getUidFile();
 	private static final String gidMappingFile = PropertiesUtils.getGidFile();
+	private static DecimalFormat df = new DecimalFormat("#.###");
 	
 	static{
 		try {
@@ -200,7 +202,7 @@ public class AttributeSelection {
 	}
 
 	public static void prepareDataForWeka() throws IOException{
-		SparseMatrix matrix = new SparseMatrix(getUidSet().size(),getGidSet().size()+1);
+		SparseMatrix matrix = new SparseMatrix(getUidSet().size(),getGidSet().size());
 		
 		Map<String,Integer> uidStrIntMap = getUidStrIntMap();
 		Map<String,Integer> gidStrIntMap = getGidStrIntMap();
@@ -224,7 +226,7 @@ public class AttributeSelection {
 		
 			
 		writeMatrix(matrix);
-		
+		splitTrainAndTest(PropertiesUtils.getTrainPercent());
 				
 	}
 	
@@ -232,13 +234,12 @@ public class AttributeSelection {
 		Map<Integer,String> uidIntStrMap = getUidIntStrMap();
 		Map<String,String> uidGenderMap = getUidGenderMap();
 		
-		BufferedWriter writer = new BufferedWriter(new FileWriter(new File("D:\\matrix.csv")));
+		BufferedWriter train = new BufferedWriter(new FileWriter(new File(PropertiesUtils.getTrainMatrixFile())));
+		BufferedWriter predict = new BufferedWriter(new FileWriter(new File(PropertiesUtils.getPredictMatrixFile())));
 		IntWritable topic = new IntWritable();
-		Element e;
-		Iterator<Element> ite;
-		StringBuffer sb;
+						
 	    VectorWritable vector = new VectorWritable();
-	    DecimalFormat df = new DecimalFormat("#.###");
+	    String gender;
 
 	    boolean flag = true;
 	    
@@ -247,23 +248,41 @@ public class AttributeSelection {
 	      vector.set(slice.vector());
 	      
 	      if(flag){
-	    	  writer.write(createHeader(vector.get())+"\r\n");
+	    	  train.write(createHeader(vector.get())+"\r\n");
+	    	  predict.write(createHeader(vector.get())+"\r\n");
 	    	  flag = false;
 	      }
 	      	      
-	      sb = new StringBuffer(200);
-	      ite= vector.get().normalize().iterator();//标准化后再输出
-	      //ite= vector.get().iterator();
 	      
-	      sb.append(topic.get()+",");
+	      //ite= vector.get().normalize().iterator();//标准化后再输出
+	      
+	      gender = uidGenderMap.get(uidIntStrMap.get(topic.get()));
+	      
+	      if(gender.equals("male") || gender.equals("female")){
+	    	  writeVector(topic,vector,train,gender);
+	      }else{
+	    	  writeVector(topic,vector,predict,"");
+	      }
+	      
+	    }
+	    
+	    train.close();
+	    predict.close();
+	}
+	
+	public static void writeVector(IntWritable topic,VectorWritable vector,BufferedWriter writer,String gender) throws IOException{
+		
+		Element e;
+		StringBuffer sb = new StringBuffer(200);
+		Iterator<Element> ite= vector.get().iterator();
+	    double vSum = vector.get().zSum();	    
+		sb.append(topic.get()+",");
 	      while(ite.hasNext()){
 	    	  e = ite.next();
-	    	  sb.append(df.format(e.get())+",");
+	    	  sb.append(df.format(e.get()/vSum)+",");
 	      }
-	      sb.append(uidGenderMap.get(uidIntStrMap.get(topic.get())));
+	      sb.append(gender);
 	      writer.write(sb.toString()+"\r\n");
-	    }
-	    writer.close();
 	}
 	
 	public static String createHeader(Vector v){
@@ -276,5 +295,33 @@ public class AttributeSelection {
 			sb.append(e.index()+",");
 		}
 		return sb.append("gender").toString();
+	}
+	
+	public static void splitTrainAndTest(Double trainPercent) throws IOException{
+		BufferedWriter train = new BufferedWriter(new FileWriter(new File(PropertiesUtils.getTrainFile())));
+		BufferedWriter test = new BufferedWriter(new FileWriter(new File(PropertiesUtils.getTestFile())));
+		BufferedReader all = new BufferedReader(new FileReader(new File(PropertiesUtils.getTrainMatrixFile())));
+		Random random = new Random();
+		String header = all.readLine()+"\r\n";
+		String line = all.readLine();
+		train.write(header);
+		test.write(header);
+		while(line != null){
+			if(!line.trim().equals("")){
+				if(random.nextDouble()<trainPercent){
+					train.write(line+"\r\n");
+				}else{
+					test.write(line+"\r\n");
+				}				
+			}
+			
+			line = all.readLine();
+		}
+		
+		train.close();
+		test.close();
+		all.close();
+		
+		
 	}
 }

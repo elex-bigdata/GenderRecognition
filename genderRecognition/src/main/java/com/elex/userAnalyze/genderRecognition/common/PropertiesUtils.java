@@ -73,4 +73,28 @@ public class PropertiesUtils {
 
 		return pop.getProperty("uidfile");
 	}
+
+	public static String getTrainMatrixFile() {
+		return pop.getProperty("train.matrix.file");
+	}
+
+	public static String getTrainFile() {
+		return pop.getProperty("train.file");
+	}
+
+	public static String getTestFile() {
+		return pop.getProperty("test.file");
+	}
+
+	public static Double getTrainPercent() {
+		return Double.parseDouble(pop.getProperty("train.percent"));
+	}
+
+	public static String getPredictMatrixFile() {
+		return pop.getProperty("predict.matrix.file");
+	}
+
+	public static String getPredictResultFile() {
+		return pop.getProperty("predict.result.file");
+	}
 }

@@ -23,7 +23,7 @@ CREATE EXTERNAL TABLE 337_user_info(uid string,gender string,source string)  STO
 
 create table 337_user_gender(uid string,gender string,source string)row format delimited fields terminated by ',' stored as textfile;
 
-hive -e "INSERT OVERWRITE table 337_user_gender select uid,gender,source from 337_user_info where gender is nonull" -hiveconf hbase.zookeeper.quorum=dmnode3,dmnode4,dmnode5
+hive -e "INSERT OVERWRITE table 337_user_gender select uid,gender,source from 337_user_info where gender is not null" -hiveconf hbase.zookeeper.quorum=dmnode3,dmnode4,dmnode5
 
 #葡语下“女孩游戏”的tag
 SELECT id FROM www_tag WHERE tagname='Jogos de Meninas' === 1051
@@ -38,4 +38,4 @@ all(male/female) === 547/242 = 2.26
 
 
 #提取训练集测试数据集
-hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/hadoop/wuzhongju/ana' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' select t.gender,c.* from 337_user_gender t join (select a.uid,b.tgid,b.gt,b.hb_sum from 337_cid_uid a join webgmrec_input b on a.cid=b.uid where b.gt='w')c on t.uid =c.uid where t.source='facebook'"
+hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/hadoop/wuzhongju/ana' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' select t.gender,c.* from 337_user_gender t join (select a.uid,b.tgid,b.gt,b.hb_sum from 337_cid_uid a join webgmrec_input b on a.cid=b.uid where b.gt='m')c on t.uid =c.uid where t.source='facebook'"

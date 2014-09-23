@@ -201,5 +201,41 @@ public class UserInfoUtils {
 		stmt.close();
 		return 0;		
 	}
+	
+	public static void loadResult(String resultFile) throws IOException{
+		BufferedReader in = new BufferedReader(new FileReader(resultFile));
+		String line = in.readLine().trim();
+		HTableInterface ud = HbaseBasis.getConn().getTable(Bytes.toBytes("337user_info"));
+		int i = 0;
+		int j = 0;
+		List<Put> list = new ArrayList<Put>();
+		while (line != null){
+						
+			String[] values = line.split(",");
+			
+			if(values.length == 2){
+				i++;
+				j++;
+				Put put = new Put(Bytes.toBytes(values[0]));				
+				put.add(Bytes.toBytes("user"), Bytes.toBytes("gender"), Bytes.toBytes(values[2]));
+
+				list.add(put);
+				
+				if(i == 1000){
+					i = 0;
+					ud.put(list);
+					list.clear();
+				}
+								
+			}
+			
+			line = in.readLine();
+			
+		}
+		ud.put(list);
+		ud.close();
+		in.close();
+		System.out.println("["+resultFile+"] 导入完成，共导入:"+j);
+	}
 
 }
