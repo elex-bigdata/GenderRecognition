@@ -39,3 +39,16 @@ all(male/female) === 547/242 = 2.26
 
 #提取训练集测试数据集
 hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/hadoop/wuzhongju/ana' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' select t.gender,c.* from 337_user_gender t join (select a.uid,b.tgid,b.gt,b.hb_sum from 337_cid_uid a join webgmrec_input b on a.cid=b.uid where b.gt='m')c on t.uid =c.uid where t.source='facebook'"
+
+
+================gamebox打点数据解析和加载=======================
+tar -xzvf box19-22.tar.gz
+
+java -classpath .:genderRecognition-1.0.jar com.elex.userAnalyze.genderRecognition.GameBoxDataExtract /home/hadoop/wuzhongju/boxdata /home/hadoop/wuzhongju/box19-22
+
+hive -e "create table 337_gamebox_software(uid string,displayname string,installdate string,installlocation string,
+installsource string,key string,language string,publisher string,uninstallpath string,uninstallstring string,
+version string,versionmajor string,versionminor string,windowsinstaller string)row format delimited fields terminated by ',' stored as textfile"
+
+hive -e "load data local inpath  '/home/hadoop/wuzhongju/boxdata' OVERWRITE INTO TABLE 337_gamebox_software"
+
