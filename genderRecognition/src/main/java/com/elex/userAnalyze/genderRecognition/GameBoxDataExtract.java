@@ -113,8 +113,8 @@ public class GameBoxDataExtract {
 										versionmajor = json4.getString("versionmajor");
 										versionminor = json4.getString("versionminor");
 										windowsinstaller = json4.getString("windowsinstaller");
-										if(uid != null && displayname != null){
-											if(!uid.equals("") && !displayname.equals("")){
+										if(uid != null && key != null){
+											if(!uid.equals("") && !key.equals("")){
 												out.write(uid+","+displayname+","+installdate+","+installlocation+","+installsource+","+key+
 														","+language+","+publisher+","+uninstallpath+","+uninstallstring+","+version+","+
 														versionmajor+","+versionminor+","+windowsinstaller+"\r\n");

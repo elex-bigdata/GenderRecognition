@@ -42,9 +42,9 @@ hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/hadoop/wuzhongju/ana' ROW FORMA
 
 
 ================gamebox打点数据解析和加载=======================
-tar -xzvf box19-22.tar.gz
+tar -xzf box19-22.tar.gz -C boxzip
 
-java -classpath .:genderRecognition-1.0.jar com.elex.userAnalyze.genderRecognition.GameBoxDataExtract /home/hadoop/wuzhongju/boxdata /home/hadoop/wuzhongju/box19-22
+java -classpath .:genderRecognition-1.0.jar com.elex.userAnalyze.genderRecognition.GameBoxDataExtract /home/hadoop/wuzhongju/boxdata /home/hadoop/wuzhongju/boxzip
 
 hive -e "create table 337_gamebox_software(uid string,displayname string,installdate string,installlocation string,
 installsource string,key string,language string,publisher string,uninstallpath string,uninstallstring string,
@@ -52,3 +52,8 @@ version string,versionmajor string,versionminor string,windowsinstaller string)r
 
 hive -e "load data local inpath  '/home/hadoop/wuzhongju/boxdata' OVERWRITE INTO TABLE 337_gamebox_software"
 
+select count(distinct uid) user_c,count(distinct displayname) soft_c,count(distinct publisher) pub_c from 337_gamebox_software; === 6601    30499   7655
+
+hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/hadoop/wuzhongju/ana' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' select displayname,count(uid) as sc from 337_gamebox_software group by displayname order by sc desc limit 100"
+
+hive -e "INSERT OVERWRITE LOCAL DIRECTORY '/home/hadoop/wuzhongju/ana' ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' SELECT distinct '0',uid,substr(displayname,0,if(length(displayname)>30,30,length(displayname))),'soft','1' from 337_gamebox_software"
